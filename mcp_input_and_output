@@ -1,0 +1,80 @@
+#include "Wire.h"
+
+#define ADD_I2C_PCI_IN  0x20
+#define ADD_I2C_PCI_OUT 0x21
+#define IODIRA 0x00
+#define IODIRB 0x01
+#define GPIOA 0x12
+#define GPIOB 0x13
+#define IPOLA 0x02
+#define IPOLB 0x03
+#define IN 0xFF
+#define OUT 0x00
+
+#define BIT_0_ON  B00000001
+#define BIT_1_ON  B00000010
+#define BIT_2_ON  B00000100
+#define BIT_3_ON  B00001000
+
+char in_a = 0x00;
+char in_b = 0x00;
+byte inputs=0;
+char a=0,b=0,c=0,d=0;
+
+
+void setup()
+{
+  //Start da I2C
+  Serial.begin(9600);
+  Wire.begin(); 
+  //Configuração da PCI de Entrada
+  Wire.beginTransmission(ADD_I2C_PCI_IN);
+  Wire.write(IODIRA); // IODIRA register
+  Wire.write(IN); // set all of port A to outputs
+  Wire.endTransmission();
+  
+  Wire.beginTransmission(ADD_I2C_PCI_IN);
+  Wire.write(IODIRB); // IODIRB register
+  Wire.write(IN); // set all of port B to outputs
+  Wire.endTransmission();
+
+  //Configuração da PCI de Saídas
+  Wire.beginTransmission(ADD_I2C_PCI_OUT);
+  Wire.write(IODIRA); // IODIRA register
+  Wire.write(OUT); // set all of port A to inputs
+  Wire.endTransmission();
+  
+  Wire.beginTransmission(ADD_I2C_PCI_OUT);
+  Wire.write(IODIRB); // IODIRB register
+  Wire.write(OUT); // set all of port B to inputs
+  Wire.endTransmission();
+  
+  Wire.beginTransmission(ADD_I2C_PCI_OUT);
+  Wire.write(IPOLA);
+  Wire.write(0x00);
+  Wire.endTransmission();
+  Wire.beginTransmission(ADD_I2C_PCI_OUT);
+  Wire.write(IPOLB);
+  Wire.write(0x00);
+  Wire.endTransmission();
+  
+    
+  Wire.beginTransmission(ADD_I2C_PCI_OUT);
+  Wire.write(GPIOA);
+  Wire.write(B01010101);
+  Wire.endTransmission();
+  
+  Wire.beginTransmission(ADD_I2C_PCI_OUT);
+  Wire.write(GPIOB);
+  Wire.write(B00000000);
+  Wire.endTransmission();
+ }
+
+void loop()
+{
+   if (Wire.available())                // if a button was pressed
+ {
+  inputs=Wire.read();                 // store the incoming byte into "inputs"
+  Serial.println(inputs, BIN);        // display the contents of the GPIOB register in binary
+ }
+}
