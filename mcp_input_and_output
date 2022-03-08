@@ -19,6 +19,7 @@
 char in_a = 0x00;
 char in_b = 0x00;
 byte inputs=0;
+char inputs_old=0;
 char a=0,b=0,c=0,d=0;
 
 
@@ -72,9 +73,14 @@ void setup()
 
 void loop()
 {
-   if (Wire.available())                // if a button was pressed
- {
-  inputs=Wire.read();                 // store the incoming byte into "inputs"
-  Serial.println(inputs, BIN);        // display the contents of the GPIOB register in binary
- }
+  Wire.requestFrom(ADD_I2C_PCI_IN, 1); // request one byte of data from MCP20317
+  inputs=Wire.read(); // store the incoming byte into "inputs"
+  
+  if(inputs != inputs_old) // if a button was pressed
+  {
+    inputs_old = inputs;
+    Serial.println(inputs, BIN); // display the contents of the GPIOB register in binary
+  }
+  
+  delay(200);
 }
